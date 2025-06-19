@@ -1,8 +1,9 @@
 #include "../game/game.hpp"
-#include "../gameObject/game_object.hpp"
+#include "../game/gameObject/game_object.hpp"
 #include <iostream>
 
-GameObject *player; // The player object
+SDL_Renderer *Game::renderer = nullptr; // The renderer of the game
+GameObject *player;                     // The player object
 
 // Constructor and Destructor
 Game::Game() {}
@@ -65,7 +66,7 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
   isRunning = true;
 
   // Create a game object
-  player = new GameObject("../assets/player.png", renderer, 190, 0);
+  player = new GameObject("../assets/player.png", 190, 0, 64, 100);
 }
 
 /**

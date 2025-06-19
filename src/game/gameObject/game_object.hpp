@@ -12,7 +12,7 @@
  */
 class GameObject {
 public:
-  GameObject(const char *textureSheet, SDL_Renderer *ren, int x, int y);
+  GameObject(const char *textureSheet, int x, int y, int width, int height);
   ~GameObject();
 
   void Update();
@@ -22,7 +22,6 @@ private:
   int xpos, ypos;             // The position of the object
   SDL_Texture *objTexture;    // The texture of the object
   SDL_Rect srcRect, destRect; // The source and destination rectangles
-  SDL_Renderer *renderer;     // The renderer of the object
 };
 
 #endif

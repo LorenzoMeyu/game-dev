@@ -1,4 +1,5 @@
 #include "texture_manager.hpp"
+#include "../game/game.hpp"
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
@@ -9,8 +10,8 @@
  * @param ren The renderer to load the texture into
  * @return The loaded texture
  */
-SDL_Texture *TextureManager::LoadTexture(const char *texture, SDL_Renderer *ren,
-                                         int width, int height) {
+SDL_Texture *TextureManager::LoadTexture(const char *texture, int width,
+                                         int height) {
   // Load the texture from the file
   SDL_Surface *tempSurface = IMG_Load(texture);
 
@@ -20,24 +21,35 @@ SDL_Texture *TextureManager::LoadTexture(const char *texture, SDL_Renderer *ren,
     return nullptr;
   }
 
-  // Set the width and height of the surface
-  tempSurface->w = width;
-  tempSurface->h = height;
+  // Create a new surface with the desired dimensions
+  SDL_Surface *scaledSurface = SDL_CreateRGBSurface(
+      tempSurface->flags, width, height, tempSurface->format->BitsPerPixel,
+      tempSurface->format->Rmask, tempSurface->format->Gmask,
+      tempSurface->format->Bmask, tempSurface->format->Amask);
+
+  if (!scaledSurface) {
+    std::cout << "Failed to create scaled surface" << std::endl;
+    SDL_FreeSurface(tempSurface);
+    return nullptr;
+  }
+
+  // Scale the old surface onto the new surface
+  SDL_BlitScaled(tempSurface, NULL, scaledSurface, NULL);
+  SDL_FreeSurface(tempSurface); // Free the original surface
 
   // Create a texture from the surface
-  SDL_Texture *tex = SDL_CreateTextureFromSurface(ren, tempSurface);
-
-  // Set the width and height of the texture
-  SDL_QueryTexture(tex, NULL, NULL, &width, &height);
+  SDL_Texture *tex =
+      SDL_CreateTextureFromSurface(Game::renderer, scaledSurface);
 
   // Check if the texture was created
   if (!tex) {
     std::cout << "Failed to create texture" << std::endl;
+    SDL_FreeSurface(scaledSurface);
     return nullptr;
   }
 
   // Free the surface
-  SDL_FreeSurface(tempSurface);
+  SDL_FreeSurface(scaledSurface);
 
   std::cout << "Texture loaded" << std::endl;
 

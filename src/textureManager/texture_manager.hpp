@@ -12,8 +12,7 @@
  */
 class TextureManager {
 public:
-  static SDL_Texture *LoadTexture(const char *texture, SDL_Renderer *ren,
-                                  int width, int height);
+  static SDL_Texture *LoadTexture(const char *texture, int width, int height);
 };
 
 #endif

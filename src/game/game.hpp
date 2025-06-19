@@ -26,10 +26,11 @@ public:
 
   bool running() { return isRunning; }
 
+  static SDL_Renderer *renderer; // The renderer of the game
+
 private:
-  bool isRunning;         // Whether the game is running
-  SDL_Window *window;     // The window of the game
-  SDL_Renderer *renderer; // The renderer of the game
+  bool isRunning;     // Whether the game is running
+  SDL_Window *window; // The window of the game
 };
 
 #endif
