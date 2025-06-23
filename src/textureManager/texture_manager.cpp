@@ -56,3 +56,14 @@ SDL_Texture *TextureManager::LoadTexture(const char *texture, int width,
   // Return the texture
   return tex;
 }
+
+/**
+ * Draw a texture to the screen
+ *
+ * @param tex The texture to draw
+ * @param src The source rectangle
+ * @param dest The destination rectangle
+ */
+void TextureManager::Draw(SDL_Texture *tex, SDL_Rect src, SDL_Rect dest) {
+  SDL_RenderCopy(Game::renderer, tex, &src, &dest);
+}

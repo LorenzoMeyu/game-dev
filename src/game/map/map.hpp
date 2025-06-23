@@ -15,7 +15,7 @@ public:
   Map();
   ~Map();
 
-  void LoadMap();
+  void LoadMap(int arr[20][25]);
   void DrawMap();
 
 private:

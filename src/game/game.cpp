@@ -1,9 +1,11 @@
 #include "../game/game.hpp"
 #include "../game/gameObject/game_object.hpp"
+#include "../game/map/map.hpp"
 #include <iostream>
 
 SDL_Renderer *Game::renderer = nullptr; // The renderer of the game
 GameObject *player;                     // The player object
+Map *map;                               // The map object
 
 // Constructor and Destructor
 Game::Game() {}
@@ -67,12 +69,18 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
 
   // Create a game object
   player = new GameObject("../assets/player.png", 190, 0, 64, 100);
+
+  // Create a map object
+  map = new Map();
 }
 
 /**
  * Update the game
  */
-void Game::update() { player->Update(); }
+void Game::update() {
+  player->Update();
+  map->DrawMap();
+}
 
 /**
  * Render the game
