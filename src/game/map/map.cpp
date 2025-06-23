@@ -21,13 +21,13 @@ int lvl1[20][25] = {
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
     {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-};
+    {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
 Map::Map() {
-  dirt = TextureManager::LoadTexture("../../../assets/dirt.png", 32, 32);
-  grass = TextureManager::LoadTexture("../../../assets/grass.png", 32, 32);
-  water = TextureManager::LoadTexture("../../../assets/water.png", 32, 32);
+  dirt = TextureManager::LoadTexture("../assets/dirt.png", 32, 32);
+  grass = TextureManager::LoadTexture("../assets/grass.png", 32, 32);
+  water = TextureManager::LoadTexture("../assets/water.png", 32, 32);
 
   LoadMap(lvl1);
 

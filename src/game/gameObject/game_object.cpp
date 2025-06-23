@@ -23,6 +23,9 @@ void GameObject::Update() {
   srcRect.x = 0;   // The x position of the source rectangle
   srcRect.y = 0;   // The y position of the source rectangle
 
+  xpos += 1;
+  ypos += 1;
+
   destRect.x = xpos;      // The x position of the destination rectangle
   destRect.y = ypos;      // The y position of the destination rectangle
   destRect.h = srcRect.h; // The height of the destination rectangle

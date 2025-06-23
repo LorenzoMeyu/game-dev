@@ -77,10 +77,7 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
 /**
  * Update the game
  */
-void Game::update() {
-  player->Update();
-  map->DrawMap();
-}
+void Game::update() { player->Update(); }
 
 /**
  * Render the game
@@ -88,6 +85,9 @@ void Game::update() {
 void Game::render() {
   // Clear the renderer
   SDL_RenderClear(renderer);
+
+  // Draw the map
+  map->DrawMap();
 
   // Draw the game object
   player->Render();

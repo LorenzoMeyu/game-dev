@@ -17,7 +17,8 @@ SDL_Texture *TextureManager::LoadTexture(const char *texture, int width,
 
   // Check if the surface was loaded
   if (!tempSurface) {
-    std::cout << "Failed to load texture" << std::endl;
+    std::cout << "Failed to load texture: " << texture << std::endl;
+    std::cout << "SDL_image Error: " << IMG_GetError() << std::endl;
     return nullptr;
   }
 
