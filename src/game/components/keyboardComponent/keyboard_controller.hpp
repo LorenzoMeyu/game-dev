@@ -14,7 +14,7 @@ public:
   SpriteComponent *sprite;
 
   void init() override;
-  void update();
+  void update() override;
 };
 
 #endif

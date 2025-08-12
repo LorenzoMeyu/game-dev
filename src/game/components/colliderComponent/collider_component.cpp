@@ -40,8 +40,15 @@ void ColliderComponent::update() {
 }
 
 void ColliderComponent::draw() {
-  TextureManager::Draw(texture, srcRect, destRect, SDL_FLIP_NONE);
+  if (texture) {
+    TextureManager::Draw(texture, srcRect, destRect, SDL_FLIP_NONE);
+  }
 }
 
 // Provide out-of-line virtual destructor to ensure vtable emission
-ColliderComponent::~ColliderComponent() = default;
+ColliderComponent::~ColliderComponent() {
+  if (texture) {
+    SDL_DestroyTexture(texture);
+    texture = nullptr;
+  }
+}

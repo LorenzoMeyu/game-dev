@@ -16,7 +16,10 @@ TileComponent::TileComponent(int srcX, int srcY, int xpos, int ypos, int tile_si
 }
 
 TileComponent::~TileComponent() {
-    SDL_DestroyTexture(texture);
+    if (texture) {
+        SDL_DestroyTexture(texture);
+        texture = nullptr;
+    }
 }
 
 void TileComponent::update() {
@@ -25,5 +28,7 @@ void TileComponent::update() {
 }
 
 void TileComponent::draw() {
-    TextureManager::Draw(texture, srcRect, destRect, SDL_FLIP_NONE);
+    if (texture) {
+        TextureManager::Draw(texture, srcRect, destRect, SDL_FLIP_NONE);
+    }
 }

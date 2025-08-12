@@ -102,18 +102,17 @@ public:
 
   /**
    * Updates all components of the entity.
-   * First calls update() on each component, then draw().
    */
   void update() {
-    for (auto &c : components)
+    for (auto &c : components) {
       c->update();
-    for (auto &c : components)
-      c->draw();
+    }
   }
 
   void draw() {
-    for (auto &c : components)
+    for (auto &c : components) {
       c->draw();
+    }
   }
 
   bool isActive() const {

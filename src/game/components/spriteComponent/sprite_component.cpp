@@ -23,7 +23,10 @@ SpriteComponent::SpriteComponent(const char *path, bool isAnimated) {
 }
 
 SpriteComponent::~SpriteComponent() {
-    SDL_DestroyTexture(texture);
+    if (texture) {
+        SDL_DestroyTexture(texture);
+        texture = nullptr;
+    }
 }
 
 void SpriteComponent::init() {
@@ -53,7 +56,9 @@ void SpriteComponent::setTexture(const char *path) {
 }
 
 void SpriteComponent::draw() {
-    TextureManager::Draw(texture, srcRect, destRect, spriteFlip);
+    if (texture) {
+        TextureManager::Draw(texture, srcRect, destRect, spriteFlip);
+    }
 }
 
 void SpriteComponent::play(const char *animName) {

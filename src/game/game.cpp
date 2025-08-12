@@ -5,10 +5,10 @@
 #include "../game/map/map.hpp"
 #include "../game/vector2d/vector_2d.hpp"
 #include "../utility/utility.hpp"
-#include <unistd.h>
+#include <memory>
 
 Manager manager;
-Map *map; // The map object
+std::unique_ptr<Map> map; // The map object
 
 SDL_Renderer *Game::renderer = nullptr; // The renderer of the game
 SDL_Event Game::event;                  // The event of the game
@@ -55,6 +55,13 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
     return;
   }
 
+  // Initialize SDL_image for PNG support
+  const int imgFlags = IMG_INIT_PNG;
+  if ((IMG_Init(imgFlags) & imgFlags) != imgFlags) {
+    Utility::Log("IMG_Init failed: " + std::string(IMG_GetError()));
+    // Not fatal for now; textures will fail to load and log accordingly
+  }
+
   // Create the window
   window = SDL_CreateWindow(title, xpos, ypos, width, height, flags);
 
@@ -65,8 +72,10 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
     return;
   }
 
-  // Create the renderer
-  renderer = SDL_CreateRenderer(window, -1, 0);
+  // Create the renderer (accelerated + vsync)
+  renderer = SDL_CreateRenderer(window, -1,
+                                SDL_RENDERER_ACCELERATED |
+                                    SDL_RENDERER_PRESENTVSYNC);
 
   // Check if the renderer was created
   if (!renderer) {
@@ -75,14 +84,14 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
     return;
   }
 
-  // Set the renderer draw color to white
+  // Set the renderer draw color to black
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 
   // Set the game to running
   isRunning = true;
 
-  // Create map if needed (currently not used)
-  // map = std::make_unique<Map>();
+  // Set camera size from window size
+  camera = {0, 0, width, height};
 
   //int player_position_x = 32;
   //int player_position_y = 32;
@@ -95,7 +104,7 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
   int map_scale = 2; // Scale of the map
   int map_tile_size = 32; // Size of the tiles in the map
 
-  map = new Map("assets/maps/lvl1-tiles.png", map_scale, map_tile_size);
+  map = std::make_unique<Map>("assets/maps/lvl1-tiles.png", map_scale, map_tile_size);
   map->LoadMap("assets/maps/lvl1.map", mapSizeX, mapSizeY);
 
   player.addComponent<TransformComponent>(player_scale);
@@ -107,7 +116,12 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
   follower.addComponent<SpriteComponent>("assets/follower.png", is_animated);
   follower.addComponent<FollowDelayComponent>(&player, 30);
 
+  follower2.addComponent<TransformComponent>(player_scale);
+  follower2.addComponent<SpriteComponent>("assets/follower.png", is_animated);
+  follower2.addComponent<FollowDelayComponent>(&follower, 30);
+
   follower.addGroup(groupPlayers);
+  follower2.addGroup(groupPlayers);
   player.addGroup(groupPlayers);
 }
 
@@ -185,6 +199,7 @@ void Game::clean() {
   SDL_DestroyWindow(window);
 
   // Quit SDL
+  IMG_Quit();
   SDL_Quit();
 
   Utility::Log("Game cleaned");

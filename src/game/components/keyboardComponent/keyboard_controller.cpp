@@ -29,18 +29,21 @@ void KeyboardController::update() {
   }
 
   if (Game::event.type == SDL_KEYUP) {
-    sprite->play("idle");
     switch (Game::event.key.keysym.sym) {
     case SDLK_UP:
+      sprite->play("idle");
       transform->velocity.y = 0;
       break;
     case SDLK_DOWN:
+      sprite->play("idle");
       transform->velocity.y = 0;
       break;
     case SDLK_LEFT:
+      sprite->play("idle");
       transform->velocity.x = 0;
       break;
     case SDLK_RIGHT:
+      sprite->play("idle");
       transform->velocity.x = 0;
       break;
     case SDLK_ESCAPE:
