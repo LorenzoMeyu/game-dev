@@ -2,7 +2,7 @@
 #include "../game.hpp"
 #include <fstream>
 #include "../ECS/ECS.hpp"
-#include "../components/tile_component.hpp"
+#include "../components/tileComponent/tile_component.hpp"
 
 extern Manager manager;
 

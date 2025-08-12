@@ -20,6 +20,7 @@ auto &colliders(manager.getGroup(Game::groupColliders));
 
 auto &player(manager.addEntity());
 auto &follower(manager.addEntity());
+auto &follower2(manager.addEntity());
 
 bool Game::isRunning = false; // Whether the game is running
 bool Game::showColliders = false; // Whether to show colliders
@@ -104,18 +105,7 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
 
   follower.addComponent<TransformComponent>(player_scale);
   follower.addComponent<SpriteComponent>("assets/follower.png", is_animated);
-  // Make follower replicate player's movement with a delay (e.g., 20 frames)
-  follower.addComponent<FollowDelayComponent>(&player, 10);
-
-  // Spawn follower with an offset relative to player
-  {
-    auto &playerTr = player.getComponent<TransformComponent>();
-    auto &followerTr = follower.getComponent<TransformComponent>();
-    const float offsetX = -48.0f; // left of player
-    const float offsetY = 0.0f;   // same vertical level
-    followerTr.position.x = playerTr.position.x + offsetX;
-    followerTr.position.y = playerTr.position.y + offsetY;
-  }
+  follower.addComponent<FollowDelayComponent>(&player, 30);
 
   follower.addGroup(groupPlayers);
   player.addGroup(groupPlayers);
