@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(GameDev LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 include(FetchContent)
 
@@ -51,6 +52,13 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 # Crea l'eseguibile principale
 add_executable(GameDev ${SOURCES})
+
+add_custom_command(TARGET GameDev POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+    "${CMAKE_SOURCE_DIR}/assets"
+    "$<TARGET_FILE_DIR:GameDev>/assets"
+  COMMENT "Copying assets to runtime dir"
+)
 
 # Includi le directory necessarie
 target_include_directories(GameDev PRIVATE

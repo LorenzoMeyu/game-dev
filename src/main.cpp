@@ -40,5 +40,9 @@ int main(int argc, char *argv[]) {
 
   game->clean();
 
+  // Release the dynamically allocated Game instance
+  delete game;
+  game = nullptr;
+
   return 0;
 }

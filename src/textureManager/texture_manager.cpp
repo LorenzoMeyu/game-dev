@@ -1,7 +1,7 @@
 #include "texture_manager.hpp"
 #include "../game/game.hpp"
+#include "../utility/utility.hpp"
 #include <SDL2/SDL_image.h>
-#include <iostream>
 
 /**
  * Load a texture from a file
@@ -10,49 +10,27 @@
  * @param ren The renderer to load the texture into
  * @return The loaded texture
  */
-SDL_Texture *TextureManager::LoadTexture(const char *texture, int width,
-                                         int height) {
+SDL_Texture *TextureManager::LoadTexture(const char *texture) {
   // Load the texture from the file
   SDL_Surface *tempSurface = IMG_Load(texture);
 
   // Check if the surface was loaded
   if (!tempSurface) {
-    std::cout << "Failed to load texture: " << texture << std::endl;
-    std::cout << "SDL_image Error: " << IMG_GetError() << std::endl;
+    Utility::Log("Failed to load texture: " + std::string(texture));
+    Utility::Log("SDL_image Error: " + std::string(IMG_GetError()));
     return nullptr;
   }
-
-  // Create a new surface with the desired dimensions
-  SDL_Surface *scaledSurface = SDL_CreateRGBSurface(
-      tempSurface->flags, width, height, tempSurface->format->BitsPerPixel,
-      tempSurface->format->Rmask, tempSurface->format->Gmask,
-      tempSurface->format->Bmask, tempSurface->format->Amask);
-
-  if (!scaledSurface) {
-    std::cout << "Failed to create scaled surface" << std::endl;
-    SDL_FreeSurface(tempSurface);
-    return nullptr;
-  }
-
-  // Scale the old surface onto the new surface
-  SDL_BlitScaled(tempSurface, NULL, scaledSurface, NULL);
-  SDL_FreeSurface(tempSurface); // Free the original surface
 
   // Create a texture from the surface
-  SDL_Texture *tex =
-      SDL_CreateTextureFromSurface(Game::renderer, scaledSurface);
+  SDL_Texture *tex = SDL_CreateTextureFromSurface(Game::renderer, tempSurface);
+  // Free the surface now that we're done with it
+  SDL_FreeSurface(tempSurface);
 
   // Check if the texture was created
   if (!tex) {
-    std::cout << "Failed to create texture" << std::endl;
-    SDL_FreeSurface(scaledSurface);
+    Utility::Log("Failed to create texture from " + std::string(texture));
     return nullptr;
   }
-
-  // Free the surface
-  SDL_FreeSurface(scaledSurface);
-
-  std::cout << "Texture loaded" << std::endl;
 
   // Return the texture
   return tex;
@@ -67,4 +45,9 @@ SDL_Texture *TextureManager::LoadTexture(const char *texture, int width,
  */
 void TextureManager::Draw(SDL_Texture *tex, SDL_Rect src, SDL_Rect dest) {
   SDL_RenderCopy(Game::renderer, tex, &src, &dest);
+}
+
+void TextureManager::Draw(SDL_Texture *tex, SDL_Rect src, SDL_Rect dest,
+                          SDL_RendererFlip flip) {
+  SDL_RenderCopyEx(Game::renderer, tex, &src, &dest, 0, NULL, flip);
 }

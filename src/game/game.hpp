@@ -3,6 +3,9 @@
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <vector>
+
+class ColliderComponent;
 
 /**
  * Game class
@@ -27,9 +30,18 @@ public:
   bool running() { return isRunning; }
 
   static SDL_Renderer *renderer; // The renderer of the game
+  static SDL_Event event;        // The event of the game
+  static bool isRunning;
+  static SDL_Rect camera;
+  static bool showColliders; // Whether to show colliders
+
+  enum groupLabels : std::size_t {
+    groupColliders,
+    groupMap,
+    groupPlayers,
+  };
 
 private:
-  bool isRunning;     // Whether the game is running
   SDL_Window *window; // The window of the game
 };
 

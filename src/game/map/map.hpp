@@ -1,7 +1,8 @@
-#include <SDL2/SDL.h>
-
 #ifndef MAP_HPP
 #define MAP_HPP
+
+#include <SDL2/SDL.h>
+#include <string>
 
 /**
  * Map class
@@ -12,20 +13,17 @@
  */
 class Map {
 public:
-  Map();
+  Map(const char *mapFilePath, int mapScale, int mapTileSize);
   ~Map();
 
-  void LoadMap(int arr[20][25]);
-  void DrawMap();
+  void AddTile(int srcX, int srcY, int xpos, int ypos);
+  void LoadMap(std::string path, int sizeX, int sizeY);
 
 private:
-  SDL_Rect src, dest;
-
-  SDL_Texture *dirt;
-  SDL_Texture *grass;
-  SDL_Texture *water;
-
-  int map[20][25];
+  const char *mapFilePath;
+  int mapScale;
+  int mapTileSize;
+  int scaledSize;
 };
 
 #endif
