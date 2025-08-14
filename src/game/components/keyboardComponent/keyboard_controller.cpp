@@ -4,56 +4,23 @@
 void KeyboardController::init() {
   transform = &entity->getComponent<TransformComponent>();
   sprite = &entity->getComponent<SpriteComponent>();
+  transform->speed = 2; // centralizza la speed qui
 }
 
 void KeyboardController::update() {
-  // Keyboard input handling
-  if (Game::event.type == SDL_KEYDOWN) {
-    sprite->play("walk");
-    switch (Game::event.key.keysym.sym) {
-    case SDLK_UP:
-      transform->velocity.y = -1;
-      break;
-    case SDLK_DOWN:
-      transform->velocity.y = 1;
-      break;
-    case SDLK_LEFT:
-      transform->velocity.x = -1;
-      break;
-    case SDLK_RIGHT:
-      transform->velocity.x = 1;
-      break;
-    default:
-      break;
-    }
-  }
+  const Uint8 *state = SDL_GetKeyboardState(nullptr);
 
-  if (Game::event.type == SDL_KEYUP) {
-    switch (Game::event.key.keysym.sym) {
-    case SDLK_UP:
-      sprite->play("idle");
-      transform->velocity.y = 0;
-      break;
-    case SDLK_DOWN:
-      sprite->play("idle");
-      transform->velocity.y = 0;
-      break;
-    case SDLK_LEFT:
-      sprite->play("idle");
-      transform->velocity.x = 0;
-      break;
-    case SDLK_RIGHT:
-      sprite->play("idle");
-      transform->velocity.x = 0;
-      break;
-    case SDLK_ESCAPE:
-      Game::isRunning = false; // Stop the game when Escape is pressed
-      break;
-    case SDLK_F1:
-      Game::showColliders = !Game::showColliders; // Toggle collider visibility
-      break;
-    default:
-      break;
-    }
+  int dirX = (state[SDL_SCANCODE_RIGHT] || state[SDL_SCANCODE_D]) -
+             (state[SDL_SCANCODE_LEFT] || state[SDL_SCANCODE_A]);
+  int dirY = (state[SDL_SCANCODE_DOWN] || state[SDL_SCANCODE_S]) -
+             (state[SDL_SCANCODE_UP] || state[SDL_SCANCODE_W]);
+
+  transform->velocity.x = dirX * transform->speed;
+  transform->velocity.y = dirY * transform->speed;
+
+  if (dirX != 0 || dirY != 0) {
+    sprite->play("walk");
+  } else {
+    sprite->play("idle");
   }
 }

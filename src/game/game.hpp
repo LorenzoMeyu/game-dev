@@ -36,9 +36,9 @@ public:
   static bool showColliders; // Whether to show colliders
 
   enum groupLabels : std::size_t {
-    groupColliders,
     groupMap,
     groupPlayers,
+    groupColliders,
   };
 
 private:

@@ -1,7 +1,8 @@
 #include "../game/game.hpp"
 #include "../game/collision/collision.hpp"
 #include "../game/components/colliderComponent/collider_component.hpp"
-#include "../game/components/components.hpp"
+#include "../game/components/keyboardComponent/keyboard_controller.hpp"
+#include "../game/components/spriteComponent/sprite_component.hpp"
 #include "../game/map/map.hpp"
 #include "../game/vector2d/vector_2d.hpp"
 #include "../utility/utility.hpp"
@@ -10,8 +11,8 @@
 Manager manager;
 std::unique_ptr<Map> map; // The map object
 
-SDL_Renderer *Game::renderer = nullptr; // The renderer of the game
-SDL_Event Game::event;                  // The event of the game
+SDL_Renderer *Game::renderer = nullptr;   // The renderer of the game
+SDL_Event Game::event;                    // The event of the game
 SDL_Rect Game::camera = {0, 0, 800, 640}; // The camera of the game
 
 auto &tiles(manager.getGroup(Game::groupMap));
@@ -22,7 +23,7 @@ auto &player(manager.addEntity());
 auto &follower(manager.addEntity());
 auto &follower2(manager.addEntity());
 
-bool Game::isRunning = false; // Whether the game is running
+bool Game::isRunning = false;     // Whether the game is running
 bool Game::showColliders = false; // Whether to show colliders
 
 // Constructor and Destructor
@@ -73,9 +74,8 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
   }
 
   // Create the renderer (accelerated + vsync)
-  renderer = SDL_CreateRenderer(window, -1,
-                                SDL_RENDERER_ACCELERATED |
-                                    SDL_RENDERER_PRESENTVSYNC);
+  renderer = SDL_CreateRenderer(
+      window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
   // Check if the renderer was created
   if (!renderer) {
@@ -93,32 +93,25 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
   // Set camera size from window size
   camera = {0, 0, width, height};
 
-  //int player_position_x = 32;
-  //int player_position_y = 32;
+  // int player_position_x = 32;
+  // int player_position_y = 32;
   int player_scale = 1;
   bool is_animated = true;
 
   int mapSizeX = 16;
   int mapSizeY = 16;
 
-  int map_scale = 2; // Scale of the map
+  int map_scale = 2;      // Scale of the map
   int map_tile_size = 32; // Size of the tiles in the map
 
-  map = std::make_unique<Map>("assets/maps/lvl1-tiles.png", map_scale, map_tile_size);
+  map = std::make_unique<Map>("assets/maps/lvl1-tiles.png", map_scale,
+                              map_tile_size);
   map->LoadMap("assets/maps/lvl1.map", mapSizeX, mapSizeY);
 
   player.addComponent<TransformComponent>(player_scale);
-  player.addComponent<SpriteComponent>("assets/player_animated.png", is_animated);
+  player.addComponent<SpriteComponent>("assets/pg1-Sheet.png", is_animated);
   player.addComponent<KeyboardController>();
-  player.addComponent<ColliderComponent>("player");
-
-  follower.addComponent<TransformComponent>(player_scale);
-  follower.addComponent<SpriteComponent>("assets/follower.png", is_animated);
-  follower.addComponent<FollowDelayComponent>(&player, 30);
-
-  follower2.addComponent<TransformComponent>(player_scale);
-  follower2.addComponent<SpriteComponent>("assets/follower.png", is_animated);
-  follower2.addComponent<FollowDelayComponent>(&follower, 30);
+  player.addComponent<ColliderComponent>("player", 0, 0, 32, 16, 0, 16);
 
   follower.addGroup(groupPlayers);
   follower2.addGroup(groupPlayers);
@@ -129,39 +122,76 @@ void Game::init(const char *title, int xpos, int ypos, int width, int height,
  * Update the game
  */
 void Game::update() {
-
-  Vector2D playerPosition = player.getComponent<TransformComponent>().position;
-
   manager.refresh();
   manager.update();
 
-  SDL_Rect playerCollider = player.getComponent<ColliderComponent>().collider;
+  auto &pt = player.getComponent<TransformComponent>();
 
-  for( auto &collider : colliders) {
-    SDL_Rect cCol = collider->getComponent<ColliderComponent>().collider;
-    if(Collision::AABB(playerCollider, cCol)) {
-      player.getComponent<TransformComponent>().position = playerPosition; // Reset player position if collision occurs
+  // Usa il collider del player SOLO se presente, altrimenti nessuna collisione
+  if (player.hasComponent<ColliderComponent>()) {
+    SDL_Rect playerRect = player.getComponent<ColliderComponent>().collider;
+
+    for (auto &collider : colliders) {
+      const SDL_Rect cCol =
+          collider->getComponent<ColliderComponent>().collider;
+
+      if (Collision::AABB(playerRect, cCol)) {
+        const float px = static_cast<float>(playerRect.x);
+        const float py = static_cast<float>(playerRect.y);
+        const float pw = static_cast<float>(playerRect.w);
+        const float ph = static_cast<float>(playerRect.h);
+
+        const float ox = static_cast<float>(cCol.x);
+        const float oy = static_cast<float>(cCol.y);
+        const float ow = static_cast<float>(cCol.w);
+        const float oh = static_cast<float>(cCol.h);
+
+        const float pCx = px + pw * 0.5f;
+        const float pCy = py + ph * 0.5f;
+        const float oCx = ox + ow * 0.5f;
+        const float oCy = oy + oh * 0.5f;
+
+        const float deltaX = pCx - oCx;
+        const float deltaY = pCy - oCy;
+
+        const float absDX = (deltaX < 0.0f) ? -deltaX : deltaX;
+        const float absDY = (deltaY < 0.0f) ? -deltaY : deltaY;
+
+        const float overlapX = (pw * 0.5f + ow * 0.5f) - absDX;
+        const float overlapY = (ph * 0.5f + oh * 0.5f) - absDY;
+
+        if (overlapX < overlapY) {
+          const float push = (deltaX < 0.0f) ? -overlapX : overlapX;
+          pt.position.x += push;
+          playerRect.x += static_cast<int>(push);
+          // opzionale: pt.velocity.x = 0.0f;
+        } else {
+          const float push = (deltaY < 0.0f) ? -overlapY : overlapY;
+          pt.position.y += push;
+          playerRect.y += static_cast<int>(push);
+          // opzionale: pt.velocity.y = 0.0f;
+        }
+      }
     }
   }
 
-  int halfWidth = 400; // Half of the camera width
-  int halfHeight = 320; // Half of the camera height
+  int halfWidth = int(camera.w / 2);
+  int halfHeight = int(camera.h / 2);
 
-  camera.x = player.getComponent<TransformComponent>().position.x - halfWidth;
-  camera.y = player.getComponent<TransformComponent>().position.y - halfHeight;
+  camera.x = pt.position.x - halfWidth;
+  camera.y = pt.position.y - halfHeight;
 
-  if(camera.x < 0) {
-    camera.x = 0; // Prevent camera from going out of bounds
+  if (camera.x < 0) {
+    camera.x = 0;
   }
-
-  if(camera.y < 0) {
-    camera.y = 0; // Prevent camera from going out of bounds
+  if (camera.y < 0) {
+    camera.y = 0;
   }
   if (camera.x > camera.w) {
-    camera.x = camera.w; // Prevent camera from going out of bounds
+    camera.x = camera.w;
   }
   if (camera.y > camera.h) {
-    camera.y = camera.h; // Prevent camera from going out of bounds
+    camera.y = camera.h;
   }
 }
 
@@ -176,14 +206,18 @@ void Game::render() {
     tile->draw();
   }
 
-  if(showColliders) {
+  for (auto &player : players) {
+    player->draw();
+  }
+
+  if (showColliders) {
     for (auto &collider : colliders) {
       collider->draw();
     }
-  }
 
-  for (auto &player : players) {
-    player->draw();
+    if (player.hasComponent<ColliderComponent>()) {
+      player.getComponent<ColliderComponent>().draw();
+    }
   }
 
   // Present the renderer
@@ -209,16 +243,22 @@ void Game::clean() {
  * Handle events
  */
 void Game::handleEvents() {
-
-  // Poll the event
-  SDL_PollEvent(&event);
-
-  // Check the type of the event
-  switch (event.type) {
-  case SDL_QUIT:
-    isRunning = false;
-    break;
-  default:
-    break;
+  while (SDL_PollEvent(&event)) {
+    switch (event.type) {
+    case SDL_QUIT:
+      isRunning = false;
+      break;
+    case SDL_KEYDOWN:
+      if (event.key.repeat == 0) {
+        if (event.key.keysym.sym == SDLK_ESCAPE) {
+          isRunning = false;
+        } else if (event.key.keysym.sym == SDLK_F1) {
+          showColliders = !showColliders;
+        }
+      }
+      break;
+    default:
+      break;
+    }
   }
 }

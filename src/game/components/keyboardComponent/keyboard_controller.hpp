@@ -15,6 +15,12 @@ public:
 
   void init() override;
   void update() override;
+
+private: 
+  bool upPressed = false;
+  bool downPressed = false;
+  bool leftPressed = false;
+  bool rightPressed = false;
 };
 
 #endif

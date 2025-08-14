@@ -1,10 +1,10 @@
 #include "./collider_component.hpp"
+#include "../../../textureManager/texture_manager.hpp"
 
-ColliderComponent::ColliderComponent(std::string tag) {
-  this->tag = tag;
-}
+ColliderComponent::ColliderComponent(std::string tag) { this->tag = tag; }
 
-ColliderComponent::ColliderComponent(std::string tag, int xPos, int yPos, int size) {
+ColliderComponent::ColliderComponent(std::string tag, int xPos, int yPos,
+                                     int size) {
   this->tag = tag;
   collider.x = xPos;
   collider.y = yPos;
@@ -12,6 +12,26 @@ ColliderComponent::ColliderComponent(std::string tag, int xPos, int yPos, int si
   collider.h = size;
 }
 
+ColliderComponent::ColliderComponent(std::string tag, int xPos, int yPos,
+                                     int width, int height) {
+  this->tag = tag;
+  collider.x = xPos;
+  collider.y = yPos;
+  collider.w = width;
+  collider.h = height;
+}
+
+ColliderComponent::ColliderComponent(std::string tag, int xPos, int yPos,
+                                     int width, int height, int offsetX,
+                                     int offsetY) {
+  this->tag = tag;
+  collider.x = xPos;
+  collider.y = yPos;
+  collider.w = width;
+  collider.h = height;
+  this->offsetX = offsetX;
+  this->offsetY = offsetY;
+}
 
 void ColliderComponent::init() {
   if (!entity->hasComponent<TransformComponent>()) {
@@ -24,15 +44,13 @@ void ColliderComponent::init() {
   srcRect = {0, 0, 32, 32};
   destRect = {collider.x, collider.y, collider.w, collider.h};
 
-  //Game::colliders.push_back(this);
+  // Game::colliders.push_back(this);
 }
 
 void ColliderComponent::update() {
-  if(tag != "terrain") {
-    collider.x = static_cast<int>(transform->position.x);
-    collider.y = static_cast<int>(transform->position.y);
-    collider.w = transform->width * transform->scale;
-    collider.h = transform->height * transform->scale;
+  if (tag != "terrain") {
+    collider.x = static_cast<int>(transform->position.x) + offsetX;
+    collider.y = static_cast<int>(transform->position.y) + offsetY;
   }
 
   destRect.x = collider.x - Game::camera.x;

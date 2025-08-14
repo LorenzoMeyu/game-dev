@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(GameDev LANGUAGES C CXX)
+project(Gamebuilder LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
@@ -51,17 +51,17 @@ target_link_libraries(SDL2_gfx_lib SDL2::SDL2 m)
 file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 # Crea l'eseguibile principale
-add_executable(GameDev ${SOURCES})
+add_executable(Gamebuilder ${SOURCES})
 
-add_custom_command(TARGET GameDev POST_BUILD
+add_custom_command(TARGET Gamebuilder POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory
     "${CMAKE_SOURCE_DIR}/assets"
-    "$<TARGET_FILE_DIR:GameDev>/assets"
+    "$<TARGET_FILE_DIR:Gamebuilder>/assets"
   COMMENT "Copying assets to runtime dir"
 )
 
 # Includi le directory necessarie
-target_include_directories(GameDev PRIVATE
+target_include_directories(Gamebuilder PRIVATE
   ${SDL2_SOURCE_DIR}/include
   ${SDL2_ttf_SOURCE_DIR}/include
   ${SDL2_img_SOURCE_DIR}/include
@@ -70,7 +70,7 @@ target_include_directories(GameDev PRIVATE
 )
 
 # Collega tutte le librerie
-target_link_libraries(GameDev
+target_link_libraries(Gamebuilder
   SDL2::SDL2
   SDL2_ttf::SDL2_ttf
   SDL2_image::SDL2_image
